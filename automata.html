@@ -1,0 +1,177 @@
+<html>
+    <head>
+        
+        <style>
+            @import 'https://fonts.googleapis.com/css?family=VT323';
+            body {
+                background-color: cornsilk;     
+            }
+            h1 {
+                text-align: center;
+                font-family: VT323;
+                font-size: 60px;
+                position: top
+            }
+            #container {
+                width: 100%
+            }
+            .row {
+                width: 81%;
+                margin: 0 auto
+            }
+            .row div {         
+                height: 2px;
+                width: 2px;
+                display: inline-block;        
+            }
+            
+            .active { 
+                background-color: #224455; 
+            }
+            
+            .inactive {
+                background-color: lightgray;
+                overflow: hidden;
+            }
+            
+        </style>
+        
+    </head>
+    
+    <body>
+        <h1>Cellular Automata</h1>
+        <div id="container">
+            <div class='row'></div>
+        </div>
+        
+        <script>
+
+            const rule150 = [true, false, false, true, false, true, true, false]
+            const rule110 = [false, true, true, false, true, true, true, false]
+            const rule225 = [true, true, true, false, false, false, false, true]
+            const currentRule = rule150
+            
+            
+            function randomBinary() {
+                return Math.round(Math.random()) 
+            }
+            
+            
+            for (let i = 0; i < 601; i++) {
+                let div = document.createElement('div')
+                document.querySelector('.row')
+                    .appendChild(div)                    
+            }
+            
+            function randomizeRow(divRow) {
+                for (let i = 0; i < divRow.childNodes.length; i++) {
+                    let div = divRow.childNodes[i]
+                    div.classList
+                        .add(randomBinary() ? 'active' : 'inactive')
+                }
+            }
+            
+            randomizeRow(document.querySelector('.row'))
+            
+            function duplicateRow() {
+                let allRows = document.querySelectorAll('.row')
+                let lastRow = allRows[allRows.length - 1 ]
+                let clone = lastRow.cloneNode(true)
+                document
+                    .getElementById('container')
+                    .appendChild(clone)
+                processRow(clone, lastRow)
+            }
+
+                       
+
+            function processRow(divRow, parentDivRow) {
+                for (let i = 0; i < divRow.childNodes.length; i++ ) {
+                    let target = divRow.childNodes[i]
+                    let prevSelf = parentDivRow.childNodes[i]
+                    let leftSibling = 
+                        prevSelf.previousElementSibling ||
+                        parentDivRow.childNodes[
+                            parentDivRow.childNodes.length - 1]
+                    let rightSibling = prevSelf.nextElementSibling ||
+                        parentDivRow.childNodes[0]
+
+                    let toggleClass = setActiveIfMatchesRule
+                        .bind(
+                            null, 
+                            target, 
+                            leftSibling, 
+                            prevSelf, 
+                            rightSibling
+                        )
+                    
+                    doTheToggleClassThing(currentRule, toggleClass)
+
+                    //toggleClass([1,1,1], false)
+                    //toggleClass([1,1,0], true)
+                    //toggleClass([1,0,1], true)
+                    //toggleClass([1,0,0], false)
+                    //toggleClass([0,1,1], true)
+                    //toggleClass([0,1,0], false)
+                    //toggleClass([0,0,1], false)
+                    //toggleClass([0,0,0], true)
+                    
+                }
+            }
+
+            function doTheToggleClassThing(array, toggle) {
+
+                
+
+                toggle([1,1,1], array[0])
+                toggle([1,1,0], array[1])
+                toggle([1,0,1], array[2])
+                toggle([1,0,0], array[3])
+                toggle([0,1,1], array[4])
+                toggle([0,1,0], array[5])
+                toggle([0,0,1], array[6])
+                toggle([0,0,0], array[7])
+            }
+
+            function setActiveIfMatchesRule(
+                target, 
+                leftSibling, 
+                prevSelf, 
+                rightSibling, 
+                rule, 
+                ruleValue
+            ) {
+                let matchesRule = 
+                    state(leftSibling) === rule[0] &&
+                    state(prevSelf) === rule[1] &&
+                    state(rightSibling) === rule[2]
+                if (matchesRule) {
+                    setIsActive(target, ruleValue)
+                }
+                 
+                
+            }
+
+            function state(cellDiv) {
+                return cellDiv.classList.contains('active') ? 1 : 0
+            }
+
+            function setIsActive(cellDiv, isActive) {
+                if (isActive) {
+                    cellDiv.classList.remove('inactive')
+                    cellDiv.classList.add('active')
+                } else {                
+                    cellDiv.classList.remove('active')
+                    cellDiv.classList.add('inactive')
+                }
+            }
+
+            let interval = setInterval(duplicateRow, 0)
+
+            
+            
+            
+        </script>
+    
+    </body>
+</html>
